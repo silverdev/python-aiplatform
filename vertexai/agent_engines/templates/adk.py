@@ -1654,10 +1654,27 @@ class AdkApp:
             _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 
     def project_id(self) -> Optional[str]:
-        time.sleep(600)
+        timeout = 300  # Total time to wait (seconds)
+        interval = 5   # Time to wait between checks (seconds)
+        start_time = time.time()
         if project := self._tmpl_attrs.get("project"):
             from google.cloud.aiplatform.utils import resource_manager_utils
-
+            from google.api_core import exceptions
+            while time.time() - start_time < timeout:
+                
+                try:
+                    # Attempt to resolve the ID
+                    result = resource_manager_utils.get_project_id(project)
+                    if result:
+                        return result
+                except (exceptions.PermissionDenied,
+                        exceptions.Unauthenticated,
+                        exceptions.ServiceUnavailable,
+                        exceptions.NotFound):
+                    pass
+            
+                # Wait a bit before trying again
+                time.sleep(interval)
+            #One last time for error consistancy
             return resource_manager_utils.get_project_id(project)
-
         return None
