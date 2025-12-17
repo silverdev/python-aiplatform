@@ -28,6 +28,7 @@ import asyncio
 from collections.abc import Awaitable
 import queue
 import sys
+import time
 import threading
 import warnings
 
@@ -1653,6 +1654,7 @@ class AdkApp:
             _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 
     def project_id(self) -> Optional[str]:
+        time.sleep(600)
         if project := self._tmpl_attrs.get("project"):
             from google.cloud.aiplatform.utils import resource_manager_utils
 
